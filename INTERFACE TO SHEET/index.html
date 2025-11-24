@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta charset="UTF-8" />
+    <title>Data Collection with OTP</title>
+    <style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+
+    /* 🌈 Beautiful animated gradient background */
+    background: linear-gradient(
+      135deg,
+      #6a11cb,
+      #2575fc,
+      #ff6e7f,
+      #bfe9ff
+    );
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+  }
+
+  @keyframes gradientMove {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .container {
+    background: rgba(255, 255, 255, 0.90);
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+    backdrop-filter: blur(6px);
+  }
+
+  h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #333;
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  label {
+    display: block;
+    margin: 12px 0 4px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='date'],
+  input[type='number'],
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #ffffffcc;
+  }
+
+  textarea {
+    min-height: 70px;
+    resize: vertical;
+  }
+
+  .row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .row > div {
+    flex: 1;
+  }
+
+  button {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .btn-primary {
+    background: #1976d2;
+    color: #fff;
+    transition: 0.3s;
+  }
+
+  .btn-primary:hover {
+    background: #0d47a1;
+  }
+
+  .btn-secondary {
+    background: #eeeeee;
+    color: #333;
+    transition: 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: #bbbbbb;
+  }
+
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
+    background: #bbb;
+    cursor: not-allowed;
+  }
+
+  .message {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .message.success {
+    color: green;
+  }
+
+  .message.error {
+    color: red;
+  }
+</style>
+
+  </head>
+  <body>
+    <div class="container">
+      <h2>Data Collection with Email OTP</h2>
+
+      <!-- Date -->
+      <label for="date">Date</label>
+      <input type="date" id="date" />
+
+      <!-- Name -->
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Enter your name" />
+
+      <!-- Email + Send OTP -->
+      <label for="email">Email</label>
+      <div class="row">
+        <div>
+          <input type="email" id="email" placeholder="Enter your email" />
+        </div>
+        <div>
+          <button type="button" class="btn-secondary" id="sendOtpBtn">
+            Send OTP
+          </button>
+        </div>
+      </div>
+
+      <!-- Phone number -->
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="Enter your phone number" />
+
+      <!-- Address -->
+      <label for="address">Address</label>
+      <textarea id="address" placeholder="Enter your address"></textarea>
+
+      <!-- Gender -->
+      <label for="gender">Gender</label>
+      <select id="gender">
+        <option value="">Select gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <!-- Age -->
+      <label for="age">Age</label>
+      <input type="number" id="age" placeholder="Enter your age" min="0" />
+
+      <!-- ID Number -->
+      <label for="idNumber">ID Number</label>
+      <input type="text" id="idNumber" placeholder="Enter your ID number" />
+
+      <!-- City -->
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="Enter your city" />
+
+      <!-- Department -->
+      <label for="department">Department</label>
+      <input
+        type="text"
+        id="department"
+        placeholder="Enter your department"
+      />
+
+      <!-- Comments -->
+      <label for="comments">Comments</label>
+      <textarea
+        id="comments"
+        placeholder="Any additional comments"
+      ></textarea>
+
+      <!-- OTP -->
+      <label for="otp">OTP</label>
+      <input
+        type="number"
+        id="otp"
+        placeholder="Enter the OTP sent to your email"
+      />
+
+      <!-- Submit button -->
+      <button type="button" class="btn-primary" id="submitBtn">
+        Submit
+      </button>
+
+      <div id="message" class="message"></div>
+    </div>
+
+    <script>
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      const messageEl = document.getElementById('message');
+
+      function showMessage(text, type) {
+        messageEl.textContent = text;
+        messageEl.className = 'message ' + (type || '');
+      }
+
+      // Send OTP
+      sendOtpBtn.addEventListener('click', function () {
+        const email = document.getElementById('email').value.trim();
+
+        if (!email) {
+          showMessage('Please enter your email first.', 'error');
+          return;
+        }
+
+        showMessage('Sending OTP...', '');
+        sendOtpBtn.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(function (msg) {
+            showMessage(msg, 'success');
+            sendOtpBtn.disabled = false;
+          })
+          .withFailureHandler(function (err) {
+            showMessage(err.message || 'Failed to send OTP.', 'error');
+            sendOtpBtn.disabled = false;
+          })
+          .sendOtp(email);
+      });
+
+      // Submit form
+      submitBtn.addEventListener('click', function () {
+        const date = document.getElementById('date').value;
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const gender = document.getElementById('gender').value;
+        const age = document.getElementById('age').value.trim();
+        const idNumber = document.getElementById('idNumber').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const department = document.getElementById('department').value.trim();
+        const comments = document.getElementById('comments').value.trim();
+        const otp = document.getElementById('otp').value.trim();
+
+        // Basic validation (all required)
+        if (
+          !date ||
+          !name ||
+          !email ||
+          !phone ||
+          !address ||
+          !gender ||
+          !age ||
+          !idNumber ||
+          !city ||
+          !department ||
+          !otp
+        ) {
+          showMessage('Please fill all required fields and enter OTP.', 'error');
+          return;
+        }
+
+        const formData = {
+          date: date,
+          name: name,
+          email: email,
+          phone: phone,
+          address: address,
+          gender: gender,
+          age: age,
+          idNumber: idNumber,
+          comments: comments,
+          city: city,
+          department: department,
+        };
+
+        showMessage('Verifying OTP and submitting data...', '');
+        submitBtn.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(function (msg) {
+            showMessage(msg, 'success');
+            submitBtn.disabled = false;
+
+            // Optional: clear form after success
+            // document.getElementById('date').value = '';
+            // document.getElementById('name').value = '';
+            // document.getElementById('email').value = '';
+            // document.getElementById('phone').value = '';
+            // document.getElementById('address').value = '';
+            // document.getElementById('gender').value = '';
+            // document.getElementById('age').value = '';
+            // document.getElementById('idNumber').value = '';
+            // document.getElementById('city').value = '';
+            // document.getElementById('department').value = '';
+            // document.getElementById('comments').value = '';
+            // document.getElementById('otp').value = '';
+          })
+          .withFailureHandler(function (err) {
+            showMessage(err.message || 'Failed to submit data.', 'error');
+            submitBtn.disabled = false;
+          })
+          .verifyAndSave(formData, otp);
+      });
+    </script>
+  </body>
+</html>
